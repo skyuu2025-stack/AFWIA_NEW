@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Language } from '../App';
+// Corrected import path for Language type
+import { Language } from '../types';
 
 interface Submission {
   id: string;

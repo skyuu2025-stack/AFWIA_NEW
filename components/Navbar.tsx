@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Language } from '../App';
+import { Language } from '../types';
 
 interface NavbarProps {
   currentView: string;

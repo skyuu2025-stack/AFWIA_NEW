@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
-import { Language } from '../App';
+import { Language } from '../types';
 
-/* Added lang prop to fix TypeScript error in App.tsx */
 const ConsultationView: React.FC<{ lang?: Language }> = ({ lang = 'zh' }) => {
   const [formData, setFormData] = useState({
     name: '',

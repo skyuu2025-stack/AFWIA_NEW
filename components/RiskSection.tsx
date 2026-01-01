@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Language } from '../App';
+// Corrected import path for Language type
+import { Language } from '../types';
 
 const Card = ({ title, enTitle, desc, icon }: { title: string, enTitle: string, desc: string, icon: React.ReactNode }) => (
   <div className="bg-white text-black p-10 md:p-14 flex flex-col h-full hover:shadow-2xl transition-all duration-500 cursor-default">

@@ -15,8 +15,7 @@ import AboutView from './components/AboutView';
 import AIChat from './components/AIChat';
 import ApplicationsView from './components/ApplicationsView';
 import TermsView from './components/TermsView';
-
-export type Language = 'zh' | 'en';
+import { Language } from './types';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'home' | 'philosophy' | 'runway' | 'launch' | 'platforms' | 'consultation' | 'about' | 'applications' | 'terms'>('home');

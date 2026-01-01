@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { Language } from '../App';
+import { Language } from '../types';
 
 interface Message {
   role: 'user' | 'model';
@@ -18,7 +18,10 @@ const AIChat: React.FC<{ lang: Language }> = ({ lang }) => {
 
   // Initialize Chat Session
   useEffect(() => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) return;
+    
+    const ai = new GoogleGenAI({ apiKey });
     const systemInstruction = lang === 'zh' 
       ? "你是 AFWIA 的顶级战略 AI 助理。AFWIA 是一家总部位于香港的机构，专注于为高净值客户（资产 100 万美元以上）提供国际秀场制作、全球品牌扩张和结构合规咨询。你的语气必须专业、干练、极简且高端。如果用户表现出潜在客户特质，引导他们申请'结构会谈'。不要提供具体的法律建议，建议咨询专业团队。"
       : "You are AFWIA's elite strategic AI assistant. AFWIA is a Hong Kong-based agency focusing on international runway production, global brand expansion, and structural compliance for high-net-worth clients (assets $1M+). Your tone must be professional, sophisticated, minimalist, and elite. If a user qualifies as a lead, guide them to 'Apply for Strategic Consultation'. Do not provide specific legal advice; recommend consulting our professional team.";
@@ -40,7 +43,7 @@ const AIChat: React.FC<{ lang: Language }> = ({ lang }) => {
   }, [messages, isLoading]);
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !chatInstance.current) return;
 
     const userMsg = input.trim();
     setInput('');
@@ -71,10 +74,10 @@ const AIChat: React.FC<{ lang: Language }> = ({ lang }) => {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-[200] font-sans">
+    <div className="fixed bottom-8 right-8 z-[200] font-sans text-black">
       {/* Chat Window */}
       {isOpen && (
-        <div className="absolute bottom-20 right-0 w-[350px] md:w-[400px] bg-white text-black shadow-2xl flex flex-col overflow-hidden border border-black/10 animate-in slide-in-from-bottom-4 duration-300">
+        <div className="absolute bottom-20 right-0 w-[350px] md:w-[400px] bg-white shadow-2xl flex flex-col overflow-hidden border border-black/10 animate-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
           <div className="bg-black text-white p-6 flex justify-between items-center">
             <div>

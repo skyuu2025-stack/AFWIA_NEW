@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Language } from '../App';
+// Corrected import path for Language type
+import { Language } from '../types';
 
 /* Added lang prop to fix TypeScript error in App.tsx */
 const LaunchView: React.FC<{ lang?: Language; onConsult?: () => void }> = ({ lang = 'zh', onConsult }) => {

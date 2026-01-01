@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Language } from '../App';
+// Corrected import path for Language type
+import { Language } from '../types';
 
 const AboutSection: React.FC<{ lang?: Language }> = ({ lang = 'zh' }) => {
   return (
