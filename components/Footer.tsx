@@ -59,8 +59,22 @@ const Footer: React.FC<FooterProps> = ({ lang = 'zh', onNavigate }) => {
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase text-white/30">
           <p>© 2024 AFWIA. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-10">
-            <a href="#" className="hover:text-white transition-colors">Tiktok</a>
-            <a href="#" className="hover:text-white transition-colors">Instagram</a>
+            <a 
+              href="https://www.tiktok.com/@afwia.com?_r=1&_t=ZS-92rfo1EWReu" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-white transition-colors"
+            >
+              Tiktok
+            </a>
+            <a 
+              href="https://www.instagram.com/afwia_agency?igsh=dTJwNjlkYm01Mmhu&utm_source=qr" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-white transition-colors"
+            >
+              Instagram
+            </a>
             <a href="#" className="hover:text-white transition-colors">Wechat</a>
           </div>
         </div>
