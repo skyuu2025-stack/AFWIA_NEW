@@ -8,6 +8,50 @@ interface Message {
   text: string;
 }
 
+const StrategicLoader: React.FC<{ lang: Language }> = ({ lang }) => {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const messages = {
+    zh: [
+      "分析结构合规性...",
+      "工程化全球触达...",
+      "优化法域逻辑...",
+      "过滤战略噪音...",
+      "构建结构防火墙...",
+      "同步国际生产标准..."
+    ],
+    en: [
+      "Analyzing structural compliance...",
+      "Engineering global reach...",
+      "Optimizing jurisdictional logic...",
+      "Filtering strategic noise...",
+      "Building structural firewalls...",
+      "Synchronizing international standards..."
+    ]
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMsgIndex((prev) => (prev + 1) % messages[lang].length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [lang]);
+
+  return (
+    <div className="flex justify-start animate-in fade-in slide-in-from-left-2 duration-500">
+      <div className="bg-white border border-black/10 p-4 flex flex-col gap-3 min-w-[200px] shadow-sm">
+        <div className="flex gap-1.5">
+          <div className="w-1 h-1 bg-black rounded-full animate-pulse"></div>
+          <div className="w-1 h-1 bg-black rounded-full animate-pulse delay-150"></div>
+          <div className="w-1 h-1 bg-black rounded-full animate-pulse delay-300"></div>
+        </div>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 animate-pulse">
+          {messages[lang][msgIndex]}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const AIChat: React.FC<{ lang: Language }> = ({ lang }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -142,15 +186,7 @@ const AIChat: React.FC<{ lang: Language }> = ({ lang }) => {
                 </div>
               </div>
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="flex gap-1 items-center p-4 bg-white border border-black/10">
-                  <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce delay-75"></span>
-                  <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce delay-150"></span>
-                </div>
-              </div>
-            )}
+            {isLoading && <StrategicLoader lang={lang} />}
           </div>
 
           {/* Input Area */}
