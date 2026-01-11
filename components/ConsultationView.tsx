@@ -17,37 +17,47 @@ const ConsultationView: React.FC<{ lang?: Language }> = ({ lang = 'zh' }) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    try {
-      // Local Data Storage Logic
-      const submission = {
-        ...formData,
-        timestamp: new Date().toISOString(),
-        id: Math.random().toString(36).substr(2, 9)
-      };
+    // Simulate a brief network delay for realism
+    setTimeout(() => {
+      try {
+        const submission = {
+          ...formData,
+          timestamp: new Date().toISOString(),
+          id: Math.random().toString(36).substr(2, 9)
+        };
 
-      const existingData = localStorage.getItem('afwia_submissions');
-      const existing = existingData ? JSON.parse(existingData) : [];
-      localStorage.setItem('afwia_submissions', JSON.stringify([submission, ...existing]));
+        const existingData = localStorage.getItem('afwia_submissions');
+        let existing = [];
+        
+        try {
+          if (existingData) {
+            const parsed = JSON.parse(existingData);
+            existing = Array.isArray(parsed) ? parsed : [];
+          }
+        } catch (parseErr) {
+          console.error("JSON Parse Error on existing submissions:", parseErr);
+          existing = [];
+        }
 
-      setIsSuccess(true);
-      
-      // Clear form
-      setFormData({
-        name: '',
-        email: '',
-        organization: '',
-        budget: '$1M - $5M USD',
-        inquiry: ''
-      });
+        const newData = JSON.stringify([submission, ...existing]);
+        localStorage.setItem('afwia_submissions', newData);
 
-      // Auto clear success message
-      setTimeout(() => setIsSuccess(false), 5000);
-    } catch (err) {
-      console.error("Storage error:", err);
-      alert(lang === 'zh' ? '保存失败，请重试。' : 'Failed to save. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+        setIsSuccess(true);
+        setFormData({
+          name: '',
+          email: '',
+          organization: '',
+          budget: '$1M - $5M USD',
+          inquiry: ''
+        });
+
+      } catch (err) {
+        console.error("Storage Critical Error:", err);
+        alert(lang === 'zh' ? '系统架构异常，数据未能存入本地。' : 'System architecture error, data not saved locally.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    }, 800);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

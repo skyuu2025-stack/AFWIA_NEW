@@ -13,8 +13,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, lang, onLangCh
   const [isOpen, setIsOpen] = useState(false);
   const clickCount = useRef(0);
   const lastClickTime = useRef(0);
-  // Fix: Replaced NodeJS.Timeout with ReturnType<typeof setTimeout> to fix TypeScript error in browser environments
-  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -41,30 +39,24 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, lang, onLangCh
   const handleLogoClick = () => {
     const now = Date.now();
     
-    // Clear previous home navigation timer if another click happens fast
-    if (clickTimer.current) {
-      clearTimeout(clickTimer.current);
-      clickTimer.current = null;
-    }
-
-    if (now - lastClickTime.current > 1500) {
+    // 如果两次点击间隔超过1秒，重置计数
+    if (now - lastClickTime.current > 1000) {
       clickCount.current = 1;
     } else {
       clickCount.current += 1;
     }
     lastClickTime.current = now;
 
+    // 触发秘密管理后台
     if (clickCount.current === 5) {
       clickCount.current = 0;
       onNavigate('applications');
-    } else if (clickCount.current === 1) {
-      // Delay home navigation to see if it's a sequence
-      clickTimer.current = setTimeout(() => {
-        if (clickCount.current === 1) {
-          handleLinkClick('home');
-          clickCount.current = 0;
-        }
-      }, 300);
+      return;
+    }
+
+    // 第一次点击时正常跳转首页，但不影响后续计数的累加
+    if (clickCount.current === 1 && currentView !== 'home') {
+      onNavigate('home');
     }
   };
 
@@ -73,7 +65,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, lang, onLangCh
       <nav className="fixed top-0 left-0 w-full z-[100] bg-black/80 backdrop-blur-md border-b border-white/10">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between h-20">
           <div 
-            className="flex flex-col cursor-pointer group select-none" 
+            className="flex flex-col cursor-pointer group select-none active:scale-95 transition-transform" 
             onClick={handleLogoClick}
           >
             <span className="text-2xl font-black tracking-tighter leading-none">AFWIA</span>
