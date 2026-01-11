@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Language } from '../types';
 
 const ConsultationView: React.FC<{ lang?: Language }> = ({ lang = 'zh' }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,27 +15,39 @@ const ConsultationView: React.FC<{ lang?: Language }> = ({ lang = 'zh' }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    // Local Data Storage Logic
-    const submission = {
-      ...formData,
-      timestamp: new Date().toISOString(),
-      id: Math.random().toString(36).substr(2, 9)
-    };
+    try {
+      // Local Data Storage Logic
+      const submission = {
+        ...formData,
+        timestamp: new Date().toISOString(),
+        id: Math.random().toString(36).substr(2, 9)
+      };
 
-    const existing = JSON.parse(localStorage.getItem('afwia_submissions') || '[]');
-    localStorage.setItem('afwia_submissions', JSON.stringify([submission, ...existing]));
+      const existingData = localStorage.getItem('afwia_submissions');
+      const existing = existingData ? JSON.parse(existingData) : [];
+      localStorage.setItem('afwia_submissions', JSON.stringify([submission, ...existing]));
 
-    alert(lang === 'zh' ? '申请已递交。我们的结构工程师将审核您的信息。' : 'Application submitted. Our structure engineers will review your inquiry.');
-    
-    // Clear form
-    setFormData({
-      name: '',
-      email: '',
-      organization: '',
-      budget: '$1M - $5M USD',
-      inquiry: ''
-    });
+      setIsSuccess(true);
+      
+      // Clear form
+      setFormData({
+        name: '',
+        email: '',
+        organization: '',
+        budget: '$1M - $5M USD',
+        inquiry: ''
+      });
+
+      // Auto clear success message
+      setTimeout(() => setIsSuccess(false), 5000);
+    } catch (err) {
+      console.error("Storage error:", err);
+      alert(lang === 'zh' ? '保存失败，请重试。' : 'Failed to save. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -85,85 +99,106 @@ const ConsultationView: React.FC<{ lang?: Language }> = ({ lang = 'zh' }) => {
 
       {/* Form Section */}
       <section className="max-w-[1440px] mx-auto px-6 md:px-12 pb-32">
-        <form onSubmit={handleSubmit} className="border-t-4 border-black pt-20 grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12">
-          {/* Identity */}
-          <div className="space-y-4">
-            <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Full Name / 姓名' : 'Full Name'}</label>
-            <input 
-              required
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              type="text" 
-              placeholder="Your professional identity" 
-              className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold placeholder:text-black/10 bg-transparent"
-            />
-          </div>
-          
-          <div className="space-y-4">
-            <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Email Address / 邮箱' : 'Email Address'}</label>
-            <input 
-              required
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              type="email" 
-              placeholder="Business email preferred" 
-              className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold placeholder:text-black/10 bg-transparent"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Organization / 企业/机构' : 'Organization'}</label>
-            <input 
-              name="organization"
-              value={formData.organization}
-              onChange={handleInputChange}
-              type="text" 
-              placeholder="Structure identifier" 
-              className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold placeholder:text-black/10 bg-transparent"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Estimated Budget / 预算规模' : 'Estimated Budget'}</label>
-            <select 
-              name="budget"
-              value={formData.budget}
-              onChange={handleInputChange}
-              className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold bg-transparent"
-            >
-              <option>$1M - $5M USD</option>
-              <option>$5M - $20M USD</option>
-              <option>$20M+ USD</option>
-              <option>{lang === 'zh' ? 'Confidential / 核心机密' : 'Confidential'}</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-2 space-y-4 mt-8">
-            <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Primary Inquiry / 核心诉求描述' : 'Primary Inquiry'}</label>
-            <textarea 
-              name="inquiry"
-              value={formData.inquiry}
-              onChange={handleInputChange}
-              rows={4}
-              placeholder="Describe your current structural fragmentation or expansion goals..." 
-              className="w-full border border-black p-8 focus:outline-none focus:bg-zinc-50 text-xl font-medium placeholder:text-black/10 bg-transparent"
-            ></textarea>
-          </div>
-
-          <div className="md:col-span-2 flex flex-col md:flex-row justify-between items-center gap-12 mt-12 border-t border-black/10 pt-12">
-            <div className="flex gap-4">
-              <input type="checkbox" required className="w-6 h-6 border-2 border-black accent-black" id="confirm" />
-              <label htmlFor="confirm" className="text-xs font-bold text-black/60 uppercase">
-                {lang === 'zh' ? '我确认涉及的资产符合百万美金资质。' : 'I confirm that the assets involved meet the million-dollar qualification.'}
-              </label>
+        {isSuccess ? (
+          <div className="border-t-4 border-black pt-20 text-center animate-in fade-in duration-700">
+            <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-8">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <button className="bg-black text-white px-16 py-8 text-xl font-black uppercase hover:bg-zinc-900 transition-all tracking-tighter w-full md:w-auto">
-              {lang === 'zh' ? 'SUBMIT APPLICATION / 递交申请' : 'SUBMIT APPLICATION'}
+            <h2 className="text-4xl font-black mb-4 uppercase">{lang === 'zh' ? '申请已递交' : 'APPLICATION SUBMITTED'}</h2>
+            <p className="text-black/40 font-bold uppercase tracking-widest">
+              {lang === 'zh' ? '我们的结构工程师将尽快审核您的信息。' : 'OUR STRUCTURAL ENGINEERS WILL REVIEW YOUR INQUIRY SHORTLY.'}
+            </p>
+            <button 
+              onClick={() => setIsSuccess(false)}
+              className="mt-12 text-xs font-black border-b border-black pb-1 uppercase tracking-[0.3em] hover:opacity-50 transition-opacity"
+            >
+              {lang === 'zh' ? '返回表单' : 'BACK TO FORM'}
             </button>
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="border-t-4 border-black pt-20 grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12">
+            {/* Identity */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Full Name / 姓名' : 'Full Name'}</label>
+              <input 
+                required
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                type="text" 
+                placeholder="Your professional identity" 
+                className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold placeholder:text-black/10 bg-transparent"
+              />
+            </div>
+            
+            <div className="space-y-4">
+              <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Email Address / 邮箱' : 'Email Address'}</label>
+              <input 
+                required
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                type="email" 
+                placeholder="Business email preferred" 
+                className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold placeholder:text-black/10 bg-transparent"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Organization / 企业/机构' : 'Organization'}</label>
+              <input 
+                name="organization"
+                value={formData.organization}
+                onChange={handleInputChange}
+                type="text" 
+                placeholder="Structure identifier" 
+                className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold placeholder:text-black/10 bg-transparent"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Estimated Budget / 预算规模' : 'Estimated Budget'}</label>
+              <select 
+                name="budget"
+                value={formData.budget}
+                onChange={handleInputChange}
+                className="w-full border-b border-black py-4 focus:outline-none focus:border-black/30 text-xl font-bold bg-transparent"
+              >
+                <option>$1M - $5M USD</option>
+                <option>$5M - $20M USD</option>
+                <option>$20M+ USD</option>
+                <option>{lang === 'zh' ? 'Confidential / 核心机密' : 'Confidential'}</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 space-y-4 mt-8">
+              <label className="text-[10px] font-black tracking-widest uppercase text-black/40">{lang === 'zh' ? 'Primary Inquiry / 核心诉求描述' : 'Primary Inquiry'}</label>
+              <textarea 
+                name="inquiry"
+                value={formData.inquiry}
+                onChange={handleInputChange}
+                rows={4}
+                placeholder="Describe your current structural fragmentation or expansion goals..." 
+                className="w-full border border-black p-8 focus:outline-none focus:bg-zinc-50 text-xl font-medium placeholder:text-black/10 bg-transparent"
+              ></textarea>
+            </div>
+
+            <div className="md:col-span-2 flex flex-col md:flex-row justify-between items-center gap-12 mt-12 border-t border-black/10 pt-12">
+              <div className="flex gap-4">
+                <input type="checkbox" required className="w-6 h-6 border-2 border-black accent-black" id="confirm" />
+                <label htmlFor="confirm" className="text-xs font-bold text-black/60 uppercase">
+                  {lang === 'zh' ? '我确认涉及的资产符合百万美金资质。' : 'I confirm that the assets involved meet the million-dollar qualification.'}
+                </label>
+              </div>
+              <button 
+                disabled={isSubmitting}
+                className="bg-black text-white px-16 py-8 text-xl font-black uppercase hover:bg-zinc-900 transition-all tracking-tighter w-full md:w-auto disabled:opacity-50"
+              >
+                {isSubmitting ? (lang === 'zh' ? '递交中...' : 'SUBMITTING...') : (lang === 'zh' ? 'SUBMIT APPLICATION / 递交申请' : 'SUBMIT APPLICATION')}
+              </button>
+            </div>
+          </form>
+        )}
       </section>
 
       {/* Trust Badges */}

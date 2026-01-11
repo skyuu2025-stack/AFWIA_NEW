@@ -13,6 +13,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, lang, onLangCh
   const [isOpen, setIsOpen] = useState(false);
   const clickCount = useRef(0);
   const lastClickTime = useRef(0);
+  // Fix: Replaced NodeJS.Timeout with ReturnType<typeof setTimeout> to fix TypeScript error in browser environments
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,7 +40,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, lang, onLangCh
 
   const handleLogoClick = () => {
     const now = Date.now();
-    if (now - lastClickTime.current > 2000) {
+    
+    // Clear previous home navigation timer if another click happens fast
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    }
+
+    if (now - lastClickTime.current > 1500) {
       clickCount.current = 1;
     } else {
       clickCount.current += 1;
@@ -49,7 +58,13 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, lang, onLangCh
       clickCount.current = 0;
       onNavigate('applications');
     } else if (clickCount.current === 1) {
-      handleLinkClick('home');
+      // Delay home navigation to see if it's a sequence
+      clickTimer.current = setTimeout(() => {
+        if (clickCount.current === 1) {
+          handleLinkClick('home');
+          clickCount.current = 0;
+        }
+      }, 300);
     }
   };
 

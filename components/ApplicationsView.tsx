@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-// Corrected import path for Language type
 import { Language } from '../types';
 
 interface Submission {
@@ -16,9 +15,31 @@ interface Submission {
 const ApplicationsView: React.FC<{ lang: Language }> = ({ lang }) => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
+  const loadData = () => {
+    try {
+      const existingData = localStorage.getItem('afwia_submissions');
+      if (existingData) {
+        const data = JSON.parse(existingData);
+        if (Array.isArray(data)) {
+          setSubmissions(data);
+        } else {
+          setSubmissions([]);
+        }
+      } else {
+        setSubmissions([]);
+      }
+    } catch (err) {
+      console.error("Failed to load submission data:", err);
+      setSubmissions([]);
+    }
+  };
+
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('afwia_submissions') || '[]');
-    setSubmissions(data);
+    loadData();
+    
+    // Also listen for storage events in case of multi-tab usage
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
   }, []);
 
   const clearData = () => {
@@ -36,12 +57,20 @@ const ApplicationsView: React.FC<{ lang: Language }> = ({ lang }) => {
             <p className="text-[10px] tracking-[0.5em] font-bold text-black/30 mb-4 uppercase">Internal Data Access</p>
             <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter">Applications</h1>
           </div>
-          <button 
-            onClick={clearData}
-            className="text-[10px] font-black border border-black/20 px-6 py-3 hover:bg-black hover:text-white transition-all uppercase tracking-widest"
-          >
-            Clear Stored Data
-          </button>
+          <div className="flex gap-4">
+            <button 
+              onClick={loadData}
+              className="text-[10px] font-black border border-black/20 px-6 py-3 hover:bg-black hover:text-white transition-all uppercase tracking-widest"
+            >
+              Refresh
+            </button>
+            <button 
+              onClick={clearData}
+              className="text-[10px] font-black border border-red-500/20 text-red-600 px-6 py-3 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest"
+            >
+              Clear Data
+            </button>
+          </div>
         </div>
 
         {submissions.length === 0 ? (
